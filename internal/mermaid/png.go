@@ -16,7 +16,7 @@ func RenderPNGs(diagrams []string, widthCells int) ([][]byte, error) {
 	}
 
 	htmlDoc, ids := buildMermaidHTML(diagrams, htmlConfig{AssignIDs: true, CSS: pngCSS})
-	fileURL, cleanup, err := writeTempHTML(htmlDoc)
+	fileURL, cleanup, err := serveHTML(htmlDoc)
 	if err != nil {
 		return nil, err
 	}

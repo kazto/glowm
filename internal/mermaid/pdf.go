@@ -22,7 +22,7 @@ func RenderPDF(diagrams []string) ([]byte, error) {
 	}
 
 	htmlDoc, _ := buildMermaidHTML(diagrams, htmlConfig{CSS: pdfCSS})
-	fileURL, cleanup, err := writeTempHTML(htmlDoc)
+	fileURL, cleanup, err := serveHTML(htmlDoc)
 	if err != nil {
 		return nil, err
 	}

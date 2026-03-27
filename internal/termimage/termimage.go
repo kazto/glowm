@@ -13,6 +13,7 @@ const (
 	FormatNone Format = iota
 	FormatIterm2
 	FormatKitty
+	FormatSixel
 )
 
 func Detect() Format {
@@ -21,6 +22,9 @@ func Detect() Format {
 	}
 	if isKitty() {
 		return FormatKitty
+	}
+	if isSixel() {
+		return FormatSixel
 	}
 	return FormatNone
 }
@@ -35,6 +39,8 @@ func EncodeWithWidth(format Format, png []byte, widthCells int) string {
 		return encodeIterm2(png, widthCells)
 	case FormatKitty:
 		return encodeKitty(png, widthCells)
+	case FormatSixel:
+		return encodeSixel(png)
 	default:
 		return ""
 	}
