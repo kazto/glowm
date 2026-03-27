@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.2](https://github.com/atani/glowm/compare/v0.2.1...v0.2.2) (2026-03-27)
+
+
+### Bug Fixes
+
+* **ci:** auto-fix Auto-merge Dependabot PRs failure ([#24](https://github.com/atani/glowm/issues/24)) ([d3369ec](https://github.com/atani/glowm/commit/d3369eca98bc773233a7700791f8105f2e4966ca))
+* **ci:** Go 1.24 -&gt; 1.25 に更新 ([b52b79f](https://github.com/atani/glowm/commit/b52b79f0afb0c6a00b717a7559438faa040a6bef))
+* **ci:** Go 1.24 -&gt; 1.25 に更新 ([03ae4bd](https://github.com/atani/glowm/commit/03ae4bdaf4986babb281659bcb4d79df6b2dc67f))
+* **ci:** update Go version from 1.25 to 1.26 ([875e39b](https://github.com/atani/glowm/commit/875e39babac43383c2d69228ee867cc667e34982))
+* **ci:** update Go version from 1.25 to 1.26 ([27afd79](https://github.com/atani/glowm/commit/27afd79b14764214c28ddbbd6eb6462b3114b692))
+
 ## [0.2.1](https://github.com/atani/glowm/compare/v0.2.0...v0.2.1) (2026-01-19)
 
 ### Bug Fixes
