@@ -5,14 +5,31 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"os"
 	"strings"
 	"testing"
 )
 
 func TestIsSixel_EnvOverride(t *testing.T) {
+	resetSixelCache()
+	t.Cleanup(resetSixelCache)
 	t.Setenv("GLOWM_SIXEL", "1")
 	if !isSixel() {
 		t.Fatal("expected isSixel()=true when GLOWM_SIXEL=1")
+	}
+}
+
+func TestIsSixel_Cached(t *testing.T) {
+	resetSixelCache()
+	t.Cleanup(resetSixelCache)
+	t.Setenv("GLOWM_SIXEL", "1")
+	if !isSixel() {
+		t.Fatal("first call: expected true")
+	}
+	// Flip the env var; the cached result must still win.
+	t.Setenv("GLOWM_SIXEL", "0")
+	if !isSixel() {
+		t.Fatal("cached isSixel() result should remain true")
 	}
 }
 
@@ -71,6 +88,16 @@ func TestParseSixelSupport(t *testing.T) {
 			want: true,
 		},
 		{
+			name: "attribute 14 must not match as 4",
+			resp: "\x1b[?14;22c",
+			want: false,
+		},
+		{
+			name: "attribute 40 must not match as 4",
+			resp: "\x1b[?40;22c",
+			want: false,
+		},
+		{
 			name: "no DA1 response",
 			resp: "garbage",
 			want: false,
@@ -96,6 +123,15 @@ func TestParseSixelSupport(t *testing.T) {
 	}
 }
 
+func TestQuerySixelViaDA1_NonTTY(t *testing.T) {
+	// Under `go test`, stdin/stdout are typically not TTYs, so the DA1 query
+	// must short-circuit to false without any side effects. This guards the
+	// early-return path for CI environments.
+	if got := querySixelViaDA1(); got != false {
+		t.Fatalf("querySixelViaDA1() on non-TTY = %v, want false", got)
+	}
+}
+
 func TestEncodeSixel_ValidPNG(t *testing.T) {
 	// Create a minimal valid PNG image (1x1 red pixel).
 	img := image.NewRGBA(image.Rect(0, 0, 1, 1))
@@ -109,9 +145,13 @@ func TestEncodeSixel_ValidPNG(t *testing.T) {
 	if got == "" {
 		t.Fatal("expected non-empty Sixel output")
 	}
-	// Sixel sequences start with DCS (ESC P) or a palette definition.
+	// Sixel sequences start with DCS (ESC P).
 	if !strings.Contains(got, "\x1bP") {
-		t.Errorf("expected DCS (ESC P) in Sixel output, got %q", got[:min(len(got), 20)])
+		preview := got
+		if len(preview) > 20 {
+			preview = preview[:20]
+		}
+		t.Errorf("expected DCS (ESC P) in Sixel output, got %q", preview)
 	}
 }
 
@@ -141,9 +181,17 @@ func TestEncodeWithWidth_Sixel(t *testing.T) {
 	}
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
+func TestSixelDebugEnabled(t *testing.T) {
+	os.Unsetenv("GLOWM_DEBUG_SIXEL")
+	if sixelDebugEnabled() {
+		t.Fatal("expected false when GLOWM_DEBUG_SIXEL is unset")
 	}
-	return b
+	t.Setenv("GLOWM_DEBUG_SIXEL", "1")
+	if !sixelDebugEnabled() {
+		t.Fatal("expected true when GLOWM_DEBUG_SIXEL=1")
+	}
+	t.Setenv("GLOWM_DEBUG_SIXEL", "0")
+	if sixelDebugEnabled() {
+		t.Fatal("expected false when GLOWM_DEBUG_SIXEL=0")
+	}
 }

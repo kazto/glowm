@@ -52,7 +52,10 @@ func serveHTML(content string) (string, func(), error) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, _ = fmt.Fprint(w, content)
 	})
-	srv := &http.Server{Handler: mux}
+	srv := &http.Server{
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 	go func() { _ = srv.Serve(ln) }()
 	url := "http://" + ln.Addr().String() + "/"
 	cleanup := func() {
